@@ -62,12 +62,13 @@ class Builder
     @document.push("</#{name}>")
 
   text: (text) ->
-    escapedText = text
-      .replace(/&/g, '&amp;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
+    escapeMap =
+      '&': '&amp;'
+      '"': '&quot;'
+      '\'': '&#39;'
+      '<': '&lt;'
+      '>': '&gt;'
+    escapedText = text.replace /&|"|'|<|>/g, (match) -> escapeMap[match]
     @document.push(escapedText)
 
   raw: (text) ->
