@@ -1,4 +1,4 @@
-Builder = require '../src/builder'
+Builder = require '../lib/builder'
 
 describe "Builder", ->
   it "builds an DOM elements based on the given function", ->
@@ -9,7 +9,7 @@ describe "Builder", ->
           @text "Hello"
           @span "World"
 
-    expect(element).toMatchMarkup """
+    element.should.matchMarkup """
       <div class="greeting">
         <h1>Hello<span>World</span></h1>
       </div>

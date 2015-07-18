@@ -24,14 +24,17 @@ gulp.task('lint', function () {
 
 gulp.task('mocha', function (cb) {
   gulp.src(paths.tests)
-    .pipe(mocha({reporter: CI ? 'spec' : 'nyan', timeout: '5s'}))
+    .pipe(mocha({
+      globals: {should: require('should')},
+      reporter: CI ? 'spec' : 'nyan', timeout: '5s'
+    }))
 });
 
 gulp.task('watch', ['test'], function () {
   gulp.watch(paths.watch, ['test']);
 });
 
-gulp.task('test', ['lint', 'mocha']);
+gulp.task('test', ['mocha']);
 
 gulp.task('clean', function(cb) {
   del(['dist/**/*'], cb);

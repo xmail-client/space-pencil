@@ -1,23 +1,17 @@
 require 'coffee-cache'
-
+should = require 'should'
 {jsdom} = require 'jsdom'
+
+should.Assertion.add 'matchMarkup', (val, description) ->
+  expectedMarkup = val.replace(/\n\s*/g, '')
+  this.params =
+    operator: ' to match markup'
+    expected: expectedMarkup
+    message: description
+  actualMarkup = this.obj.outerHTML
+  this.assert actualMarkup is expectedMarkup
 
 beforeEach ->
   browser = jsdom()
   global.window = browser.parentWindow
   global.document = window.document
-
-  @addMatchers
-    toMatchMarkup: (expected) ->
-      notText = if @isNot then " not" else ""
-
-      @message = -> """
-        Expected markup to#{notText} match.
-        Actual: #{actualMarkup}
-        Expected: #{expectedMarkup}
-      """
-
-      actual = @actual.cloneNode(true)
-      actualMarkup = actual.outerHTML
-      expectedMarkup = expected.replace(/\n\s*/g, '')
-      actualMarkup is expectedMarkup
