@@ -1,5 +1,5 @@
 node_modules
 *.swp
-lib
+dist
 npm-debug.log
 .coffee
