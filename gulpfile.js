@@ -3,8 +3,11 @@
 var gulp   = require('gulp');
 var del = require('del');
 var coffeelint = require('gulp-coffeelint');
-var mocha = require('gulp-mocha');
 var coffee = require('gulp-coffee');
+var karma = require('karma');
+var path = require('path');
+
+var configFile = path.resolve(__dirname, 'spec/karma.conf.js');
 
 require('coffee-script/register');
 
@@ -22,19 +25,17 @@ gulp.task('lint', function () {
     .pipe(coffeelint.reporter());
 });
 
-gulp.task('mocha', function (cb) {
-  gulp.src(paths.tests)
-    .pipe(mocha({
-      globals: {should: require('should')},
-      reporter: CI ? 'spec' : 'nyan', timeout: '5s'
-    }))
-});
-
 gulp.task('watch', ['test'], function () {
   gulp.watch(paths.watch, ['test']);
 });
 
-gulp.task('test', ['mocha']);
+gulp.task('test', function (done) {
+  var server = new karma.Server({
+    configFile: configFile,
+    singleRun: true
+  }, done);
+  server.start();
+});
 
 gulp.task('clean', function(cb) {
   del(['dist/**/*'], cb);
