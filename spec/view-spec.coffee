@@ -1,14 +1,13 @@
-Builder = require '../lib/builder'
+View = require '../lib/view'
 
 describe "Builder", ->
   it "builds an DOM elements based on the given function", ->
-    builder = new Builder
-    element = builder.buildElement ->
-      @div class: "greeting", ->
-        @h1 ->
+    [html, postProcessingSteps] = View.buildHtml ->
+      @div class: "greeting", =>
+        @h1 =>
           @text "Hello"
           @span "World"
-
+    element = View.buildDOMFromHTML(html, postProcessingSteps)
     element.should.matchMarkup """
       <div class="greeting">
         <h1>Hello<span>World</span></h1>

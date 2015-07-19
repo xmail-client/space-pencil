@@ -90,7 +90,7 @@ class View
   @buildDOMFromHTML: (html, postProcessingSteps) ->
     div = document.createElement('div')
     div.innerHTML = html
-    if div.childElementCount isnt 1
+    if div.children.length isnt 1
       throw new Error("View markup must have a single root element")
     fragment = div.firstElementChild
     step(fragment) for step in postProcessingSteps
@@ -103,8 +103,8 @@ class View
   constructor: (args...) ->
     [html, postProcessingSteps] = @constructor.buildHtml -> @content(args...)
     @element = @buildDOMFromHTML(html, postProcessingSteps)
-    @element.attached = => @attached?()
-    @element.detached = => @detached?()
+    @element.attachedCallback = => @attached?()
+    @element.detachedCallback = => @detached?()
 
     @wireOutlets(this)
     @bindEventHandlers(this)
@@ -138,22 +138,19 @@ class View
     root = view.element
     for eventName in Events
       selector = "[#{eventName}]"
-      for element in element.querySelectorAll(selector)
+      for element in root.querySelectorAll(selector)
         do (element) ->
           methodName = element.getAttribute(eventName)
           element.on eventName, (event) -> view[methodName](event, element)
 
-      if matchesSelector(view, selector)
-        methodName = view[0].getAttribute(eventName)
+      if root.matches(selector)
+        methodName = root.getAttribute(eventName)
         do (methodName) ->
-          view.on eventName, (event) -> view[methodName](event, view)
+          root.on eventName, (event) -> view[methodName](event, view)
 
     undefined
 
 class Builder
-  for tagName in TagNames
-    do (tagName) => @::[tagName] = (args...) -> @tag(tagName, args...)
-
   constructor: ->
     @document = []
     @postProcessingSteps = []
@@ -179,7 +176,7 @@ class Builder
       if text? or content?
         throw new Error("Self-closing tag #{name} cannot have text or content")
     else
-      content.call(this) if content?
+      content?()
       @text(text) if text?
       @closeTag(name)
 
