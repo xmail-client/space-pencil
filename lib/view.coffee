@@ -87,22 +87,21 @@ class View
     fn.call(this)
     [html, postProcessingSteps] = @popBuilder().buildHtml()
 
-  @buildDOMFromHTML: (html, postProcessingSteps) ->
+  @buildDOMFromHTML: (html) ->
     div = document.createElement('div')
     div.innerHTML = html
     if div.children.length isnt 1
       throw new Error("View markup must have a single root element")
     fragment = div.firstElementChild
-    step(fragment) for step in postProcessingSteps
     fragment
 
   @render: (fn) ->
-    [html, postProcessingSteps] = @buildHtml(fn)
-    @buildDOMFromHTML(html, postProcessingSteps)
+    [html] = @buildHtml(fn)
+    @buildDOMFromHTML(html)
 
   constructor: (args...) ->
     [html, postProcessingSteps] = @constructor.buildHtml -> @content(args...)
-    @element = @buildDOMFromHTML(html, postProcessingSteps)
+    @element = @constructor.buildDOMFromHTML(html)
     @element.attachedCallback = => @attached?()
     @element.detachedCallback = => @detached?()
 
@@ -115,7 +114,7 @@ class View
       element.spacePenView = this
 
     if postProcessingSteps?
-      step(@element) for step in postProcessingSteps
+      step(this) for step in postProcessingSteps
     @initialize?(args...)
 
   buildHtml: (params) ->
@@ -135,30 +134,29 @@ class View
     undefined
 
   bindEventHandlers: (view) ->
+    addEventHandler = (element, eventName) ->
+      methodName = element.getAttribute(eventName)
+      element.addEventListener eventName, (event) ->
+        view[methodName](event, element)
+
     root = view.element
     for eventName in Events
       selector = "[#{eventName}]"
       for element in root.querySelectorAll(selector)
-        do (element) ->
-          methodName = element.getAttribute(eventName)
-          element.on eventName, (event) -> view[methodName](event, element)
-
-      if root.matches(selector)
-        methodName = root.getAttribute(eventName)
-        do (methodName) ->
-          root.on eventName, (event) -> view[methodName](event, view)
-
+        addEventHandler(element, eventName)
+      addEventHandler(root, eventName) if root.matches(selector)
     undefined
+
+  find: (selector) ->
+    @element.querySelector(selector)
+
+  findAll: (selector) ->
+    @element.querySelectorAll(selector)
 
 class Builder
   constructor: ->
     @document = []
     @postProcessingSteps = []
-
-  buildElement: (fn) ->
-    wrapper = document.createElement('div')
-    wrapper.innerHTML = @buildHtml(fn)
-    wrapper.firstChild
 
   buildHtml: (fn) ->
     [@document.join(''), @postProcessingSteps]
@@ -217,4 +215,6 @@ class Builder
     @postProcessingSteps.push (view) ->
       view[outletName] = subview
       subview.parentView = view
-      view.find("div##{subviewId}").replaceWith(subview)
+      console.log 'view find', view.find
+      subviewDiv = view.find("div##{subviewId}")
+      subviewDiv.parentElement.replaceChild(subview.element, subviewDiv)
