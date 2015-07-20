@@ -1,7 +1,7 @@
 # Space Pencil
 
-This library currently has is an element builder with the same
-DSL as SpacePen, but it returns a raw DOM element rather than a jQuery fragment.
+This library currently has an element builder with the same
+DSL as [SpacePen](https://github.com/atom/space-pen), but it returns a raw DOM element rather than a jQuery fragment.
 
 ```coffee
 View = require 'space-pencil'
