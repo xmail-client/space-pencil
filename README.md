@@ -1,10 +1,10 @@
-# Space Pencil
+# Space View
 
 This library currently has an element builder with the same
 DSL as [SpacePen](https://github.com/atom/space-pen), but it returns a raw DOM element rather than a jQuery fragment.
 
 ```coffee
-View = require 'space-pencil'
+View = require 'space-view'
 
 class TestView extends View
   @content: (params={}, otherArg) ->
@@ -21,11 +21,11 @@ class TestView extends View
 
 ## Write markup on the final frontier
 
-SpacePencil is a powerful but minimalistic client-side view framework for
+SpaceView is a powerful but minimalistic client-side view framework for
 CoffeeScript. It combines the "view" and "controller" into a single object,
 whose markup is expressed with an embedded DSL similar to Markaby for Ruby.
 
-The `space-pencil` API is like `space-pen` but remove the `jQuery` integration.
+The `space-view` API is like `space-pen` but remove the `jQuery` integration.
 
 ## API
 
@@ -125,7 +125,7 @@ class Spacecraft extends View
 
 ## Outlets and Events
 
-SpacePencil will automatically create named reference for any element with an
+SpaceView will automatically create named reference for any element with an
 `outlet` attribute. For example, if the `ol` element has an attribute
 `outlet=list`, the view object will have a `list` entry pointing to a jQuery
 wrapper for the `ol` element.
@@ -146,7 +146,7 @@ class Spacecraft extends View
 
 Elements can also have event name attributes whose value references a custom
 method. For example, if a `button` element has an attribute
-`click=launchSpacecraft`, then SpacePen will invoke the `launchSpacecraft`
+`click=launchSpacecraft`, then SpaceView will invoke the `launchSpacecraft`
 method on the button's parent view when it is clicked:
 
 ```coffeescript
@@ -207,7 +207,7 @@ class Spacecraft extends View
 
 ## Freeform Markup Generation
 
-You don't need a View class to use the SpacePen markup DSL. Call `View.render`
+You don't need a View class to use the SpaceView markup DSL. Call `View.render`
 with an unbound function (`->`, not `=>`) that calls tag methods, and it will
 return a document fragment for ad-hoc use. This method is also assigned to the
 `$$` global variable for convenience.
