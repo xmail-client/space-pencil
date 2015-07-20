@@ -2,6 +2,9 @@ View = require '../lib/view'
 should = require 'should'
 sinon = require 'sinon'
 
+afterEach ->
+  View.builderStack = null
+
 describe "Builder", ->
   it "builds an DOM elements based on the given function", ->
     [html, postProcessingSteps] = View.buildHtml ->
@@ -85,7 +88,7 @@ describe "View", ->
         view.header.matches('h1').should.true
         view.subview.header.matches('h2').should.true
 
-      it.only "binds events for elements with event name attributes", ->
+      it "binds events for elements with event name attributes", ->
         sinon.stub view, 'viewClicked', (event, elt) ->
           event.type.should.equal 'keydown'
           elt.matches("div.rootDiv").should.true
@@ -112,16 +115,10 @@ describe "View", ->
         view.li1Clicked.called.should.false
 
       it "makes the view object accessible via the ::view method on any child element", ->
-        expect(view.view()).toBe view
-        expect(view.header.view()).toBe view
-        expect(view.subview.view()).toBe view.subview
-        expect(view.subview.header.view()).toBe view.subview
-
-      it "makes the view object accessible via the ::containingView method on child elements added after the fact", ->
-        child = $('<div>')
-        view.append(child)
-        expect(child.view()).toBeUndefined()
-        expect(child.containingView()).toBe view
+        view.element.spacePenView.should.equal view
+        view.header.spacePenView.should.equal view
+        view.subview.element.spacePenView.should.equal view.subview
+        view.subview.header.spacePenView.should.equal view.subview
 
       it "throws an exception if the view has more than one root element", ->
         class BadView extends View
@@ -129,13 +126,13 @@ describe "View", ->
             @div id: 'one'
             @div id: 'two'
 
-        expect(-> new BadView).toThrow("View markup must have a single root element")
+        (-> new BadView).should.throw("View markup must have a single root element")
 
       it "throws an exception if the view has no content", ->
         BadView = class extends View
           @content: -> # left blank intentionally
 
-        expect(-> new BadView).toThrow("View markup must have a single root element")
+        (-> new BadView).should.throw("View markup must have a single root element")
 
       it "throws an exception if the view has a self closing tag with text", ->
         BadView = class extends View
@@ -143,76 +140,53 @@ describe "View", ->
             @div =>
               @img 'text'
 
-        expect(-> new BadView).toThrow("Self-closing tag img cannot have text or content")
+        (-> new BadView).should.throw("Self-closing tag img cannot have text or content")
 
     if document.registerElement?
       describe "when a view is attached/detached to/from the DOM", ->
         it "calls ::attached and ::detached hooks if present", ->
-          content = $('#jasmine-content')
-          view.attached = jasmine.createSpy('attached hook')
-          view.detached = jasmine.createSpy('detached hook')
-          content.append(view)
-          expect(view.attached).toHaveBeenCalled()
+          content = document.createElement('div');
+          view.attached = sinon.spy()
+          view.detached = sinon.spy()
+          content.appendChild(view.element)
+          view.attached.called.should.true
 
-          view.detach()
-          expect(view.detached).toHaveBeenCalled()
-
-    describe "when a view defines an ::afterAttach hook", ->
-      it "throws an exception on construction", ->
-        class BadView extends View
-          @content: -> @div "Bad"
-          afterAttach: ->
-
-        expect(-> new BadView).toThrow()
-
-    describe "when a view defines a ::beforeRemove hook", ->
-      it "throws an exception on construction", ->
-        class BadView extends View
-          @content: -> @div "Bad"
-          beforeRemove: ->
-
-        expect(-> new BadView).toThrow()
-
-    describe "when the view constructs a new jQuery wrapper", ->
-      it "constructs instances of jQuery rather than the view class", ->
-        expect(view.eq(0) instanceof jQuery).toBeTruthy()
-        expect(view.eq(0) instanceof TestView).toBeFalsy()
-        expect(view.end() instanceof jQuery).toBeTruthy()
-        expect(view.end() instanceof TestView).toBeFalsy()
+          view.remove()
+          view.detached.called.should.true
 
   describe "View.render (bound to $$)", ->
     it "renders a document fragment based on tag methods called by the given function", ->
-      fragment = $$ ->
+      fragment = View.render ->
         @div class: "foo", =>
           @ol =>
             @li id: 'one'
             @li id: 'two'
 
-      expect(fragment).toMatchSelector('div.foo')
-      expect(fragment.find('ol')).toExist()
-      expect(fragment.find('ol li#one')).toExist()
-      expect(fragment.find('ol li#two')).toExist()
+      fragment.matches('div.foo').should.true
+      fragment.querySelector('ol').should.exist
+      fragment.querySelector('ol li#one').should.exist
+      fragment.querySelector('ol li#two').should.exist
 
     it "renders subviews", ->
-      fragment = $$ ->
+      fragment = View.render ->
         @div =>
-          @subview 'foo', $$ ->
+          @subview 'foo', View.render ->
             @div id: "subview"
 
-      expect(fragment.find('div#subview')).toExist()
-      expect(fragment.foo).toMatchSelector('#subview')
+      fragment.querySelector('div#subview').should.exist
+      fragment.foo.matches('#subview').should.exist
 
   describe "$$$", ->
-    it "returns the raw HTML constructed by tag methods called by the given function (not a jQuery wrapper)", ->
-      html = $$$ ->
+    it "returns the raw HTML constructed by tag methods called by the given function", ->
+      html = View.renderHtml ->
         @div class: "foo", =>
           @ol =>
             @li id: 'one'
             @li id: 'two'
 
-      expect(typeof html).toBe 'string'
-      fragment = $(html)
-      expect(fragment).toMatchSelector('div.foo')
-      expect(fragment.find('ol')).toExist()
-      expect(fragment.find('ol li#one')).toExist()
-      expect(fragment.find('ol li#two')).toExist()
+      (typeof html).should.equal 'string'
+      fragment = View.buildDOMFromHTML(html)
+      fragment.matches('div.foo').should.true
+      fragment.querySelector('ol').should.exist
+      fragment.querySelector('ol li#one').should.exist
+      fragment.querySelector('ol li#two').should.exist

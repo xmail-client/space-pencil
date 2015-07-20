@@ -92,12 +92,17 @@ class View
     div.innerHTML = html
     if div.children.length isnt 1
       throw new Error("View markup must have a single root element")
-    fragment = div.firstElementChild
-    fragment
+    div.firstElementChild
 
   @render: (fn) ->
-    [html] = @buildHtml(fn)
-    @buildDOMFromHTML(html)
+    [html, postProcessingSteps] = @buildHtml(fn)
+    element = @buildDOMFromHTML(html)
+    if postProcessingSteps?
+      step(element) for step in postProcessingSteps
+    element
+
+  @renderHtml: (fn) ->
+    @buildHtml(fn)[0]
 
   constructor: (args...) ->
     [html, postProcessingSteps] = @constructor.buildHtml -> @content(args...)
@@ -152,6 +157,8 @@ class View
 
   findAll: (selector) ->
     @element.querySelectorAll(selector)
+
+  remove: -> @element.remove()
 
 class Builder
   constructor: ->
@@ -215,6 +222,7 @@ class Builder
     @postProcessingSteps.push (view) ->
       view[outletName] = subview
       subview.parentView = view
-      console.log 'view find', view.find
-      subviewDiv = view.find("div##{subviewId}")
-      subviewDiv.parentElement.replaceChild(subview.element, subviewDiv)
+      element = if view instanceof View then view.element else view
+      subviewDiv = element.querySelector("div##{subviewId}")
+      subElement = if subview instanceof View then subview.element else subview
+      subviewDiv.parentElement.replaceChild(subElement, subviewDiv)
