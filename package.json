@@ -1,15 +1,15 @@
 {
-  "name": "space-pencil",
+  "name": "space-view",
   "version": "0.1.0",
   "description": "SpacePen minus jQuery",
-  "main": "dist/space-pencil.js",
+  "main": "dist/space-view.js",
   "scripts": {
     "test": "gulp test",
     "prepublish": "gulp dist"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/xmail-client/space-pencil"
+    "url": "https://github.com/xmail-client/space-view"
   },
   "keywords": [
     "view"
@@ -17,9 +17,9 @@
   "author": "liuxiong",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/xmail-client/space-pencil/issues"
+    "url": "https://github.com/xmail-client/space-view/issues"
   },
-  "homepage": "https://github.com/xmail-client/space-pencil",
+  "homepage": "https://github.com/xmail-client/space-view",
   "devDependencies": {
     "coffee-script": "^1.9.3",
     "coffeeify": "^1.1.0",

@@ -1,4 +1,4 @@
-View = require '../lib/space-pencil'
+View = require '../lib/space-view'
 should = require 'should'
 sinon = require 'sinon'
 
