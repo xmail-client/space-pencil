@@ -160,6 +160,13 @@ class View
 
   remove: -> @element.remove()
 
+  on: (event, callback) -> @element.addEventListener(event, callback)
+  off: (event, callback) -> @element.removeEventListener(event, callback)
+  once: (event, callback) ->
+    @element.addEventListener event, (event) =>
+      callback(event)
+      @element.removeEventListener(event, callback)
+
 class Builder
   constructor: ->
     @document = []

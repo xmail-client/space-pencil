@@ -142,6 +142,24 @@ describe "View", ->
 
         (-> new BadView).should.throw("Self-closing tag img cannot have text or content")
 
+      it "trigger the event callback if listen on event", ->
+        callback = sinon.spy()
+        view.on 'click', callback
+        view.element.dispatchEvent new MouseEvent('click')
+        callback.called.should.true
+        callback.reset()
+
+        view.off 'click', callback
+        view.element.dispatchEvent new MouseEvent('click')
+        callback.called.should.false
+        callback.reset()
+
+        view.once 'click', callback
+        view.element.dispatchEvent new MouseEvent('click')
+        callback.called.should.true
+        view.element.dispatchEvent new MouseEvent('click')
+        callback.calledOnce.should.true
+
     if document.registerElement?
       describe "when a view is attached/detached to/from the DOM", ->
         it "calls ::attached and ::detached hooks if present", ->
