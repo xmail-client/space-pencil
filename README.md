@@ -27,50 +27,6 @@ whose markup is expressed with an embedded DSL similar to Markaby for Ruby.
 
 The `space-view` API is like `space-pen` but remove the `jQuery` integration.
 
-## API
-
-The `View` class has the following instance methods.
-
-  * **find**: `function(selector)`
-
-    Find the child nodes in the element tree by css selector.
-
-  * **findAll**: `function(selector)`
-
-    Find all of the child nodes by css selector.
-
-  * **on**: `function(eventName, callback)`
-
-    Add event listener `callback` for the `eventName` event.
-
-  * **off**: `function(eventName, callback)`
-
-    Remove event listener `callback` for the `eventName` event.
-
-  * **once**: `function(eventName, callback)`
-
-    Add event listener just like `on`, but after the event has trigger, the event
-    callback will remove automatically.
-
-Also, `View` has many html builder static method, such as `div`, `image`.
-Otherwise the HTML tag method, the following static method is included.
-
-  * **text**: `function(string)`
-
-    Build the text node. The particular character will escaped.
-
-  * **raw**: `function(string)`
-
-    Build the text node and the text will retain.
-
-  * **tag**: `function(tagName, args...)`
-
-    Build the `tagName` tag node.
-
-  * **subview**: `function(name, view)`
-
-    Integrate the sub view into this view.
-
 ## Basics
 
 View objects extend from the View class and have a @content class method where
@@ -218,3 +174,57 @@ view.list.append $$ ->
     @text "Starship"
     @em "Enterprise"
 ```
+
+## API
+
+The 'View' class has the following class methods.
+
+  * **render**: `function(callback)`
+
+    This function render the content specified by callback, return the root element.
+
+  * **renderHtml**: `function(callback)`
+
+    Just like `render` but return the HTML string.
+
+The `View` class has the following instance methods.
+
+  * **find**: `function(selector)`
+
+    Find the child nodes in the element tree by css selector.
+
+  * **findAll**: `function(selector)`
+
+    Find all of the child nodes by css selector.
+
+  * **on**: `function(eventName, callback)`
+
+    Add event listener `callback` for the `eventName` event.
+
+  * **off**: `function(eventName, callback)`
+
+    Remove event listener `callback` for the `eventName` event.
+
+  * **once**: `function(eventName, callback)`
+
+    Add event listener just like `on`, but after the event has trigger, the event
+    callback will remove automatically.
+
+Also, `View` has many html builder static method, such as `div`, `image`.
+Otherwise the HTML tag method, the following static method is included.
+
+  * **text**: `function(string)`
+
+    Build the text node. The particular character will escaped.
+
+  * **raw**: `function(string)`
+
+    Build the text node and the text will retain.
+
+  * **tag**: `function(tagName, args...)`
+
+    Build the `tagName` tag node.
+
+  * **subview**: `function(name, view)`
+
+    Integrate the sub view into this view.

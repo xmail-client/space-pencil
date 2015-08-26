@@ -106,7 +106,7 @@ class View
 
   constructor: (args...) ->
     [html, postProcessingSteps] = @constructor.buildHtml -> @content(args...)
-    @element = @constructor.buildDOMFromHTML(html)
+    @root = @element = @constructor.buildDOMFromHTML(html)
     @element.attachedCallback = => @attached?()
     @element.detachedCallback = => @detached?()
 

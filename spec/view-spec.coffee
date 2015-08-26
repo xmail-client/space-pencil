@@ -60,7 +60,7 @@ describe "View", ->
 
     describe "constructor", ->
       it "calls the content class method with the given params to produce the view's html", ->
-        view.element.matches "div"
+        view.root.matches "div"
         view.find("h1").textContent.should.equal 'Zebra 42'
         view.find("mytag#thetag").textContent.should.equal 'Non standard tag'
         view.find("ol > li.foo").textContent.should.equal 'one'
@@ -101,7 +101,7 @@ describe "View", ->
           event.type.should.equal 'keypress'
           elt.matches("li.bar").should.true
 
-        view.element.dispatchEvent new MouseEvent('click')
+        view.root.dispatchEvent new MouseEvent('click')
         view.viewClicked.calledOnce.should.true
 
         view.li1.dispatchEvent new MouseEvent('click')
@@ -115,9 +115,9 @@ describe "View", ->
         view.li1Clicked.called.should.false
 
       it "makes the view object accessible via the ::view method on any child element", ->
-        view.element.spacePenView.should.equal view
+        view.root.spacePenView.should.equal view
         view.header.spacePenView.should.equal view
-        view.subview.element.spacePenView.should.equal view.subview
+        view.subview.root.spacePenView.should.equal view.subview
         view.subview.header.spacePenView.should.equal view.subview
 
       it "throws an exception if the view has more than one root element", ->
@@ -145,19 +145,19 @@ describe "View", ->
       it "trigger the event callback if listen on event", ->
         callback = sinon.spy()
         view.on 'click', callback
-        view.element.dispatchEvent new MouseEvent('click')
+        view.root.dispatchEvent new MouseEvent('click')
         callback.called.should.true
         callback.reset()
 
         view.off 'click', callback
-        view.element.dispatchEvent new MouseEvent('click')
+        view.root.dispatchEvent new MouseEvent('click')
         callback.called.should.false
         callback.reset()
 
         view.once 'click', callback
-        view.element.dispatchEvent new MouseEvent('click')
+        view.root.dispatchEvent new MouseEvent('click')
         callback.called.should.true
-        view.element.dispatchEvent new MouseEvent('click')
+        view.root.dispatchEvent new MouseEvent('click')
         callback.calledOnce.should.true
 
     if document.registerElement?
@@ -166,13 +166,13 @@ describe "View", ->
           content = document.createElement('div');
           view.attached = sinon.spy()
           view.detached = sinon.spy()
-          content.appendChild(view.element)
+          content.appendChild(view.root)
           view.attached.called.should.true
 
           view.remove()
           view.detached.called.should.true
 
-  describe "View.render (bound to $$)", ->
+  describe "View.render", ->
     it "renders a document fragment based on tag methods called by the given function", ->
       fragment = View.render ->
         @div class: "foo", =>
@@ -194,7 +194,7 @@ describe "View", ->
       fragment.querySelector('div#subview').should.exist
       fragment.foo.matches('#subview').should.exist
 
-  describe "$$$", ->
+  describe "View.renderHtml", ->
     it "returns the raw HTML constructed by tag methods called by the given function", ->
       html = View.renderHtml ->
         @div class: "foo", =>
