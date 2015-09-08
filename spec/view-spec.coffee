@@ -115,10 +115,10 @@ describe "View", ->
         view.li1Clicked.called.should.false
 
       it "makes the view object accessible via the ::view method on any child element", ->
-        view.root.spacePenView.should.equal view
-        view.header.spacePenView.should.equal view
-        view.subview.root.spacePenView.should.equal view.subview
-        view.subview.header.spacePenView.should.equal view.subview
+        view.root.spaceView.should.equal view
+        view.header.spaceView.should.equal view
+        view.subview.root.spaceView.should.equal view.subview
+        view.subview.header.spaceView.should.equal view.subview
 
       it "throws an exception if the view has more than one root element", ->
         class BadView extends View

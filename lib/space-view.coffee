@@ -106,17 +106,17 @@ class View
 
   constructor: (args...) ->
     [html, postProcessingSteps] = @constructor.buildHtml -> @content(args...)
-    @root = @element = @constructor.buildDOMFromHTML(html)
-    @element.attachedCallback = => @attached?()
-    @element.detachedCallback = => @detached?()
+    @root = @constructor.buildDOMFromHTML(html)
+    @root.attachedCallback = => @attached?()
+    @root.detachedCallback = => @detached?()
 
     @wireOutlets(this)
     @bindEventHandlers(this)
 
-    @element.spacePenView = this
-    treeWalker = document.createTreeWalker(@element, NodeFilter.SHOW_ELEMENT)
+    @root.spaceView = this
+    treeWalker = document.createTreeWalker(@root, NodeFilter.SHOW_ELEMENT)
     while element = treeWalker.nextNode()
-      element.spacePenView = this
+      element.spaceView = this
 
     if postProcessingSteps?
       step(this) for step in postProcessingSteps
@@ -130,7 +130,7 @@ class View
     postProcessingSteps
 
   wireOutlets: (view) ->
-    root = view.element
+    root = view.root
     for element in root.querySelectorAll('[outlet]')
       outlet = element.getAttribute('outlet')
       view[outlet] = element
@@ -144,7 +144,7 @@ class View
       element.addEventListener eventName, (event) ->
         view[methodName](event, element)
 
-    root = view.element
+    root = view.root
     for eventName in Events
       selector = "[#{eventName}]"
       for element in root.querySelectorAll(selector)
@@ -153,19 +153,19 @@ class View
     undefined
 
   find: (selector) ->
-    @element.querySelector(selector)
+    @root.querySelector(selector)
 
   findAll: (selector) ->
-    @element.querySelectorAll(selector)
+    @root.querySelectorAll(selector)
 
-  remove: -> @element.remove()
+  remove: -> @root.remove()
 
-  on: (event, callback) -> @element.addEventListener(event, callback)
-  off: (event, callback) -> @element.removeEventListener(event, callback)
+  on: (event, callback) -> @root.addEventListener(event, callback)
+  off: (event, callback) -> @root.removeEventListener(event, callback)
   once: (event, callback) ->
-    @element.addEventListener event, (event) =>
+    @root.addEventListener event, (event) =>
       callback(event)
-      @element.removeEventListener(event, callback)
+      @root.removeEventListener(event, callback)
 
 class Builder
   constructor: ->
@@ -229,7 +229,7 @@ class Builder
     @postProcessingSteps.push (view) ->
       view[outletName] = subview
       subview.parentView = view
-      element = if view instanceof View then view.element else view
+      element = if view instanceof View then view.root else view
       subviewDiv = element.querySelector("div##{subviewId}")
-      subElement = if subview instanceof View then subview.element else subview
+      subElement = if subview instanceof View then subview.root else subview
       subviewDiv.parentElement.replaceChild(subElement, subviewDiv)
